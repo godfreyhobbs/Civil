@@ -639,7 +639,8 @@ export class CivilTCR extends BaseWrapper<CivilTCRContract> {
     deposit: BigNumber,
     applicationContent: string,
   ): Promise<TwoStepEthTransaction> {
-    const uri = await this.contentProvider.put(applicationContent);
+    const { uri } = await this.contentProvider.put(applicationContent);
+
     return this.applyWithURI(listingAddress, deposit, uri);
   }
 
@@ -698,7 +699,7 @@ export class CivilTCR extends BaseWrapper<CivilTCRContract> {
    * @param data Data associated with challenge
    */
   public async challenge(listingAddress: EthAddress, data: string = ""): Promise<TwoStepEthTransaction> {
-    const uri = await this.contentProvider.put(data);
+    const { uri } = await this.contentProvider.put(data);
     return this.challengeWithURI(listingAddress, uri);
   }
 

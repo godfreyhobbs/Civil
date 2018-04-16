@@ -1,7 +1,7 @@
 import * as Debug from "debug";
 import * as Web3 from "web3";
 
-import { ContentProvider } from "./content/contentprovider";
+import { ContentProvider, ContentProviderCreator } from "./content/contentprovider";
 import { InMemoryProvider } from "./content/inmemoryprovider";
 import { Newsroom } from "./contracts/newsroom";
 import { EthAddress, TxHash, CivilTransactionReceipt, TwoStepEthTransaction } from "./types";
@@ -50,7 +50,7 @@ export class Civil {
     }
 
     // TODO(ritave): Choose a better default provider
-    this.contentProvider = opts.contentProvider || new InMemoryProvider(this.web3Wrapper);
+    this.contentProvider = opts.contentProvider || new InMemoryProvider({web3Wrapper: this.web3Wrapper});
   }
 
   /**
@@ -122,8 +122,12 @@ export class Civil {
    * might a bad actor or not implementing Newsroom ABIs at all.
    * @param address The address on current Ethereum network where the smart-contract is located
    */
-  public async newsroomAtUntrusted(address: EthAddress): Promise<Newsroom> {
-    return Newsroom.atUntrusted(this.web3Wrapper, this.contentProvider, address);
+  public async newsroomAtUntrusted(address: EthAddress, contentProviderClass?: ContentProviderCreator): Promise<Newsroom> {
+    let contentProvider = this.contentProvider;
+    if (contentProviderClass) {
+      contentProvider = new contentProviderClass({web3Wrapper: this.web3Wrapper});
+    }
+    return Newsroom.atUntrusted(this.web3Wrapper, contentProvider, address);
   }
 
   /**
