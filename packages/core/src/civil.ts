@@ -14,7 +14,7 @@ const debug = Debug("civil:main");
 
 export interface CivilOptions {
   web3Provider?: Web3.Provider;
-  contentProvider?: ContentProvider;
+  ContentProvider?: ContentProviderCreator;
   debug?: true;
 }
 
@@ -50,7 +50,11 @@ export class Civil {
     }
 
     // TODO(ritave): Choose a better default provider
-    this.contentProvider = opts.contentProvider || new InMemoryProvider({web3Wrapper: this.web3Wrapper});
+    if (opts.ContentProvider) {
+      this.contentProvider = new opts.ContentProvider({web3Wrapper: this.web3Wrapper});
+    } else {
+      this.contentProvider = new InMemoryProvider({web3Wrapper: this.web3Wrapper});
+    }
   }
 
   /**
@@ -122,12 +126,8 @@ export class Civil {
    * might a bad actor or not implementing Newsroom ABIs at all.
    * @param address The address on current Ethereum network where the smart-contract is located
    */
-  public async newsroomAtUntrusted(address: EthAddress, contentProviderClass?: ContentProviderCreator): Promise<Newsroom> {
-    let contentProvider = this.contentProvider;
-    if (contentProviderClass) {
-      contentProvider = new contentProviderClass({web3Wrapper: this.web3Wrapper});
-    }
-    return Newsroom.atUntrusted(this.web3Wrapper, contentProvider, address);
+  public async newsroomAtUntrusted(address: EthAddress): Promise<Newsroom> {
+    return Newsroom.atUntrusted(this.web3Wrapper, this.contentProvider, address);
   }
 
   /**

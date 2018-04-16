@@ -6,7 +6,7 @@ import { ContentProvider } from "../content/contentprovider";
 import { CivilErrors, requireAccount } from "../utils/errors";
 import { Web3Wrapper } from "../utils/web3wrapper";
 import { BaseWrapper } from "./basewrapper";
-import {  NewsroomContract, NewsroomEvents, RevisionPublishedArgs } from "./generated/newsroom";
+import {  NewsroomContract, NewsroomEvents, RevisionPublishedLog } from "./generated/newsroom";
 import { TwoStepEthTransaction, TxData, EthAddress, ContentId, ContentHeader, NewsroomContent } from "../types";
 import { createTwoStepTransaction, createTwoStepSimple, findEvents, findEventOrThrow } from "./utils/contracts";
 import { NewsroomMultisigProxy } from "./generated/multisig/newsroom";
@@ -270,7 +270,7 @@ export class Newsroom extends BaseWrapper<NewsroomContract> {
       this.web3Wrapper,
       await this.instance.publishRevision.sendTransactionAsync(contentHeader.uri, contentHeader.hash),
       receipt => {
-        return findEventOrThrow<RevisionPublishedArgs>(receipt, NewsroomEvents.RevisionPublished).args.id.toNumber();
+        return findEventOrThrow<RevisionPublishedLog>(receipt, NewsroomEvents.RevisionPublished).args.id.toNumber();
       },
     );
   }
